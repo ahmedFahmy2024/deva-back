@@ -28,6 +28,8 @@ app.use("/", express.static(path.join(__dirname, "public")));
 
 // routes
 app.use("/", require("./routes/root"));
+app.use("/users", require("./routes/userRoutes"));
+app.use("/notes", require("./routes/noteRoutes"));
 
 // handle all other routes
 app.all("*", (req, res) => {
