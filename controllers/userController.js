@@ -17,6 +17,17 @@ const getAllUsers = asyncHandler(async (req, res) => {
     });
 });
 
+// @desc Get single user
+// @route GET /user
+// @access Private
+const getUserById = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id).select('-password').lean();
+    if(!user) {
+        return res.status(400).json({message: 'User not found'})
+    };
+    res.json(user);
+});
+
 // @desc Create new user
 // @route post /users
 // @access Private
@@ -54,10 +65,11 @@ const createNewUser = asyncHandler(async (req, res) => {
 // @route patch /users
 // @access Private
 const updateUser = asyncHandler(async (req, res) => {
-    const { id, username, password, roles, active } = req.body;
+    const { id } = req.params;
+    const { username, password, roles, active } = req.body;
 
     // confirm data
-    if ( !id || !username || !Array.isArray(roles) || !roles.length || typeof active !== 'boolean') {
+    if ( !username || !Array.isArray(roles) || !roles.length || typeof active !== 'boolean') {
         return res.status(400).json({ message: 'All fields are required'})
     }
 
@@ -90,7 +102,7 @@ const updateUser = asyncHandler(async (req, res) => {
 // @route delete /users
 // @access Private
 const deleteUser = asyncHandler(async (req, res) => {
-    const { id } = req.body
+    const { id } = req.params;
 
     // Confirm data
     if (!id) {
@@ -123,6 +135,7 @@ const deleteUser = asyncHandler(async (req, res) => {
 
 module.exports = {
     getAllUsers,
+    getUserById,
     createNewUser,
     updateUser,
     deleteUser

@@ -24,6 +24,22 @@ const getAllNotes = asyncHandler(async (req, res) => {
     })
 });
 
+// @desc Get note
+// @route GET /note
+// @access Private
+const getNoteById = asyncHandler(async (req, res) => {
+    const note = await Note.findById(req.params.id).lean().exec();
+    if(!note) {
+        return res.status(400).json({ message: 'Note not found'})
+    };
+
+    const user = await User.findById(note.user).lean().exec();
+    if(!user) {
+        return res.status(400).json({ message: 'User not found'})
+    };
+    res.json({ ...note, username: user.username });
+});
+
 // @desc Create new note
 // @route post /notes
 // @access Private
@@ -66,10 +82,11 @@ const createNewNote = asyncHandler(async (req, res) => {
 // @route patch /notes
 // @access Private
 const updateNote = asyncHandler(async (req, res) => {
-    const { id, user, title, text, completed } = req.body;
+    const { id } = req.params;
+    const { user, title, text, completed } = req.body;
 
     // confirm data
-    if(!id || !user || !title || !text || typeof completed !== 'boolean') {
+    if(!user || !title || !text || typeof completed !== 'boolean') {
         return res.status(400).json({ message: 'All fields are required'})
     }
 
@@ -98,7 +115,7 @@ const updateNote = asyncHandler(async (req, res) => {
 // @route delete /notes
 // @access Private
 const deleteNote = asyncHandler(async (req, res) => {
-    const { id } = req.body;
+    const { id } = req.params;
 
     // confirm data
     if (!id) {
@@ -121,6 +138,7 @@ const deleteNote = asyncHandler(async (req, res) => {
 
 module.exports = {
     getAllNotes,
+    getNoteById,
     createNewNote,
     updateNote,
     deleteNote
